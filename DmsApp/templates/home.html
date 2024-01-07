@@ -1,0 +1,22 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<section>
+    <a href="{% url 'home' %}" class="btn btn-outline-danger">Reported</a>
+    <a href="{% url 'progress' %}"  class="btn btn-outline-primary">In Progress</a>
+    <a href="{% url 'solved' %}" class="btn btn-outline-success">Solved</a>
+    <div class="container my-5">
+        <div class="row">
+            {% for i in report %}
+            <h2>{{i.report_name}}</h2>
+            <h5>{{i.description}}</h4>
+            <h5>Severity Level:{{ i.severity_level}}</h5>
+            <br><br>
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}
