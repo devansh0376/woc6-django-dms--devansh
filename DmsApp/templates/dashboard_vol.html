@@ -1,11 +1,10 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<a href="{% url 'home' %}" class="btn btn-outline-danger">Reported</a>
-<a href="{% url 'progress' %}"  class="btn btn-outline-primary">In Progress</a>
-<a href="{% url 'solved' %}" class="btn btn-outline-success">Solved</a>
-
 <section>
+    <a href="{% url 'home' %}" class="btn btn-outline-danger">Reported</a>
+    <a href="{% url 'progress' %}"  class="btn btn-outline-primary">In Progress</a>
+    <a href="{% url 'solved' %}" class="btn btn-outline-success">Solved</a>
     <div class="container my-5">
         <div class="row">
             {% for i in report %}
@@ -18,5 +17,6 @@
         </div>
     </div>
 </section>
+
 
 {% endblock %}

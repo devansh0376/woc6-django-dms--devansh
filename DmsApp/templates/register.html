@@ -1,0 +1,50 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        backdrop-filter: blur(3px);
+    }
+
+    .divider:after,
+    .divider:before {
+        content: "";
+        flex: 1;
+        height: 1px;
+    }
+</style>
+
+<section class="vh-100">
+    <div class="container py-1 h-100">
+        <div class="row d-flex align-items-center justify-content-center h-100 w-auto border-opacity-10">
+            <div class="col-md-5 col-lg-5 col-xl-5 offset-xl-0">
+                <div>
+                    <h1 style="font-family: 'Josefin Slab', serif; font-size:60px; font-weight: 150; color:green;">
+                        <center>Register</center>
+                    </h1>
+                </div>
+                <a href="{% url 'signup_vol' %}">
+                    <div class="btn button-reciver color-white text-center mr-1 p-2" required
+                        style="color:rgb(7, 172, 7);">
+                        <b>Volunteer Signup</b>
+                    </div>
+                </a>
+                OR
+                <a href="{% url 'signup_org' %}">
+                    <div class="btn button-reciver color-white text-center mr-1 p-2" required
+                        style="color:rgb(7, 172, 7);">
+                        <b>Organization Signup</b>
+                    </div>
+                </a>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
