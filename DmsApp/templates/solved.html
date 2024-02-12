@@ -1,22 +1,58 @@
 {% extends 'main.html' %}
-
 {% block content %}
-<a href="{% url 'home' %}" class="btn btn-outline-danger">Reported</a>
-<a href="{% url 'progress' %}"  class="btn btn-outline-primary">In Progress</a>
-<a href="{% url 'solved' %}" class="btn btn-outline-success">Solved</a>
+<style>
+    /* Additional CSS styles for better appearance */
+    body {
+        background-color: #f8f9fa;
+    }
+
+    section {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #007bff;
+    }
+
+    h2 {
+        color: #343a40;
+    }
+
+    h5 {
+        color: #6c757d;
+    }
+</style>
 
 <section>
+    <div class="text-center">
+        {%if user.organization%}
+        <a href="{% url 'dashboard_org' %}" class="btn btn-outline-danger mx-2">Reported</a>
+        {% elif user.volunteer %}
+        <a href="{% url 'dashboard_vol' %}" class="btn btn-outline-danger mx-2">Reported</a>
+        {% else %}
+        <a href="{% url 'home' %}" class="btn btn-outline-danger mx-2">Reported</a>
+        {% endif %}
+        <a href="{% url 'progress' %}" class="btn btn-outline-primary mx-2">In Progress</a>
+        <a href="{% url 'solved' %}" class="btn btn-outline-success mx-2">Solved</a>
+    </div>
+
     <div class="container my-5">
         <div class="row">
             {% for i in report %}
             <h2>{{i.report_name}}</h2>
             <h5>{{i.description}}</h4>
-            <h5>Severity Level:{{ i.severity_level}}</h5>
+            
+            <!-- Styling severity level and link button -->
+            <div class="d-flex align-items-center">
+                <h5 class="mr-3">Severity Level: {{ i.severity_level }}</h5>
+            </div>
+
             <br><br>
             {% endfor %}
-
         </div>
     </div>
 </section>
-
 {% endblock %}

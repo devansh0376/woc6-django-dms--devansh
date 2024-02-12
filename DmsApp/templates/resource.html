@@ -1,0 +1,31 @@
+{% extends 'main.html' %}
+{% block content %}
+
+{% if user.organization %}
+<center><a href="{%url 'add_resource' %}" class="btn btn-outline-danger" >Add Resources </a></center>
+{%endif%}   
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Organization Name</th>
+      <th scope="col">Resource name</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Ward number</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    {% for i in resource %}
+    <tr>
+      <th scope="row">{{i.id}}</th>
+      <td>{{i.org_name}}</td>
+      <td>{{i.resource_name}}</td>
+      <td>{{i.quantity}}</td>
+      <td>{{i.ward}}</td>
+    </tr>
+    {% endfor %}
+    </tr>
+</tbody>
+</table>
+{% endblock %}

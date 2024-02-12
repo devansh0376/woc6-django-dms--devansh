@@ -1,0 +1,11 @@
+{% extends 'main.html' %}
+{% block content %}
+<h3><center><b>Add Resources</b></center></h3>
+<br><br>
+
+<form action="" method="POST">
+    {% csrf_token %} 
+    {{form}}
+    <input type="submit" name="submit">
+</form>
+{% endblock %}

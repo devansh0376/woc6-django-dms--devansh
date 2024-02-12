@@ -23,9 +23,15 @@ class ReportForm(ModelForm):
         fields='__all__'
         exclude=['status']
 
+class Add_Resource(ModelForm):
+    class Meta:
+        model=Resources
+        fields='__all__'
+        #exclude=['org_name']
+
 
 class Org_Form(ModelForm):
-    password = forms.CharField(widget=PasswordInput()) 
+    #password = forms.CharField(widget=PasswordInput()) 
     class Meta():
         model=User
         fields=['username','email','password']

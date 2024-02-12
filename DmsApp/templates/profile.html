@@ -67,9 +67,11 @@
 <div class="profile-container">
     <div class="profile-details">
         <!-- Profile Details Heading -->
+
         <div class="profile-details-heading">Profile Details</div>
         <div class="user-attribute">Username: {{ user.username }}</div>
         <div class="user-attribute">Email Id: {{ user.email }}</div>
+
         {% if user_type == 'organization' %}
         <div class="user-attribute">Domain: {{ profile_info.domain }}</div>
         <div class ="user-attribute">Location: {{ profile_info.location }}</div>
@@ -79,16 +81,14 @@
         <div class="user-attribute">Age: {{ profile_info.age }}</div>
         <div class ="user-attribute">Gender: {{ profile_info.gender }}  </div>
         <div class="user-attribute">Skills: {{ profile_info.skills }}</div>
-        <div class="user-attribute">Gender: {{customer.gender}}</div>
         <div class="user-attribute">City: {{ profile_info.city }}</div>
         <div class="user-attribute">Organization: {{ profile_info.org_name }}</div>
         {% else %}
         <p>Unknown user type.</p>
         {% endif %}
-        <button type="button" class="btn btn-primary">Change Password</button>
-        <button type="button" class="btn btn-primary">Edit Profile</button>
-        <a class="edit-profile-link" href=""></a>
-        <div class="edit-profile-link"><a href="#"></a></div>
+        <a href="" style="display: inline-block; padding: 7px 15px; background-color: #007bff; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px;">Change Password</a>
+        <a href="{% url 'edit_profile' %}" style="display: inline-block; padding: 7px 15px; background-color: #007bff; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px;">Edit Profile</a>
+
     </div>
 </div>
 

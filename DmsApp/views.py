@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
 from .models import *
 from .forms import *
@@ -96,19 +96,21 @@ def signup_vol(request):
 @unauthenticated_user
 def userLogin(request):
     invalidlogin=False
+    context={}
     if request.method=='POST':
         username=request.POST.get('username')
         password=request.POST.get('password')
         user=authenticate(username=username,password=password)
         if user:
-            if user.is_active:
-                login(request, user)
-                return redirect('/')
+            login(request, user)
+            user = request.user
+            if hasattr(user, 'organization'):
+                return redirect('dashboard_org')
             else:
-                return HttpResponse('Account not active')
+                return redirect('dashboard_vol')
+            #return redirect('home')
         else:
             messages.info(request, 'Username or password is incorrect')
-            context={}
             return render(request,'login.html',context)
     return render(request,'login.html')
 
@@ -117,7 +119,6 @@ def logoutuser(request):
     logout(request)
     return redirect('/login')
 
-@login_required(login_url='login')
 def home(request):
     #return HttpResponse("<h1> Hey i am the future of india </h1>")
     report=Report.objects.all()
@@ -125,56 +126,157 @@ def home(request):
     context={'report':report}
 
     return render(request,'home.html',context)
-
+@login_required(login_url='login')
+def dashboard_vol(request):
+    user = request.user
+    user_type = 'volunteer'
+    profile_info = Volunteer.objects.get(vol_name=user)
+    report=Report.objects.all()
+    report=report.filter(status='reported')
+    context = {'user_type': user_type, 'profile_info': profile_info,'report':report}
+    return render(request,'dashboard_vol.html',context)
 
 @login_required(login_url='login')
+def dashboard_org(request):
+    user = request.user
+    user_type = 'organization'
+    profile_info = Organization.objects.get(org_name=user)
+    report=Report.objects.all()
+    report=report.filter(status='reported')
+    context = {'user_type': user_type, 'profile_info': profile_info,'report':report}
+    return render(request,'dashboard_org.html',context)
+
+#@login_required(login_url='login')
 def progress(request):
     report=Report.objects.all()
     report=report.filter(status='in_progress')
     context={'report':report}
     return render(request,'progress.html',context)
 
-@login_required(login_url='login')
+#@login_required(login_url='login')
 def solved(request):
     report=Report.objects.all()
     report=report.filter(status='solved')
     context={'report':report}
     return render(request,'solved.html',context)
 
-@login_required(login_url='login')
+#@login_required(login_url='login')
 def guidelines(request):
     return render(request,'guidelines.html')
 
-@login_required(login_url='login')
+#@login_required(login_url='login')
 def createReport(request):
     form=ReportForm()
-    contex={'form':form}
+    context={'form':form}
     if request.method =='POST':
         form=ReportForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('/')    
         #print('printing post:' ,request.POST)
-    return render(request,'report.html',contex)
+    return render(request,'report.html',context)
+
+
+@login_required(login_url='login')
+def accept_report(request, report_id):
+    report = Report.objects.get(id=report_id)
+    # Check if the current user is the volunteer and the report is in 'reported' status
+    if request.user.volunteer and report.status == 'reported':
+        report.status = 'in_progress'
+        report.save()
+        messages.success(request, 'Report accepted and set to In Progress.')
+    else:
+        messages.error(request, 'Unable to accept the report.')
+
+    return redirect('dashboard_vol')
+
+@login_required(login_url='login')
+def mark_solve(request,report_id):
+    report=Report.objects.get(id=report_id)
+    if request.user.volunteer and report.status == 'in_progress':
+        report.status = 'solved'
+        report.save()
+        messages.success(request, 'Report accepted and set to In Progress.')
+    else:
+        messages.error(request, 'Unable to accept the report.')
+
+    return redirect('dashboard_vol')
+
+
+@login_required(login_url='login')
+def resource(request):
+    all_rec=Resources.objects.all()
+    context={'resource' : all_rec}
+    return render(request,'resource.html',context)
+
+def add_resource(request):
+    form=Add_Resource()
+    context={'form':form}
+    if request.method =='POST':
+        form=Add_Resource(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/resource/')    
+        #print('printing post:' ,request.POST)
+    return render(request,'add_resource.html',context)
 
 def userpage(request):
     return render(request,'user.html')
-
+@login_required(login_url='login')
 def profile(request):
     user = request.user
 
     if hasattr(user, 'organization'):
         user_type = 'organization'
         profile_info = Organization.objects.get(org_name=user)
-    elif hasattr(user, 'volunteer'):
+    else:
         user_type = 'volunteer'
         profile_info = Volunteer.objects.get(vol_name=user)
-    else:
-        user_type = 'unknown'
-        profile_info = None
 
     context = {'user_type': user_type, 'profile_info': profile_info}
     return render(request, 'profile.html', context)
+
+def edit_profile(request):
+    context={}
+    user = request.user
+
+    if hasattr(user, 'organization'):
+        user_type = 'organization'
+        profile_info = Organization.objects.get(org_name=user)
+    else:
+        user_type = 'volunteer'
+        profile_info = Volunteer.objects.get(vol_name=user)
+
+    if user_type=='organization':
+        temp_org=Org_Form(instance=user)
+        temp_org_add=Org_AddForm(instance=user.organization)
+        if request.method == 'POST':
+            temp_org=Org_Form(request.POST,instance=user)
+            temp_org_add=Org_AddForm(request.POST,instance=user.organization)
+            if temp_org.is_valid() and temp_org_add.is_valid():
+                temp_org.save()
+                temp_org_add.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('/profile/')
+        context={'user_type': user_type,'org':temp_org , 'org_add':temp_org_add,'profile_info': profile_info}
+
+    else:
+        temp_vol=Vol_Form(instance=user)
+        temp_vol_add=Vol_AddForm(instance=user.volunteer)
+        if request.method == 'POST':
+            temp_vol=Vol_Form(request.POST,instance=user)
+            temp_vol_add=Vol_AddForm(request.POST,instance=user.volunteer)
+            if temp_vol.is_valid() and temp_vol_add.is_valid():
+                temp_vol.save()
+                temp_vol_add.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('/profile/')
+        context={'user_type': user_type,'vol':temp_vol , 'vol_add':temp_vol_add,'profile_info': profile_info}
+
+    return render(request, 'edit_profile.html', context)
+
+    
+
 
 """def signup_vol(request):
     form=User_vol()

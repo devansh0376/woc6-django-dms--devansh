@@ -1,22 +1,51 @@
 {% extends 'main.html' %}
 
 {% block content %}
+
+<style>
+    /* Additional CSS styles for better appearance */
+    body {
+        background-color: #f8f9fa;
+    }
+
+    section {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #007bff;
+    }
+
+    h2 {
+        color: #343a40;
+    }
+
+    h5 {
+        color: #6c757d;
+    }
+    
+</style>
+
 <section>
-    <a href="{% url 'home' %}" class="btn btn-outline-danger">Reported</a>
-    <a href="{% url 'progress' %}"  class="btn btn-outline-primary">In Progress</a>
-    <a href="{% url 'solved' %}" class="btn btn-outline-success">Solved</a>
+    <!-- Centering the buttons -->
+    <div class="text-center">
+        <a href="{% url 'dashboard_vol' %}" class="btn btn-outline-danger mx-2">Reported</a>
+        <a href="{% url 'progress' %}" class="btn btn-outline-primary mx-2">In Progress</a>
+        <a href="{% url 'solved' %}" class="btn btn-outline-success mx-2">Solved</a>
+    </div>
+
     <div class="container my-5">
         <div class="row">
             {% for i in report %}
             <h2>{{i.report_name}}</h2>
             <h5>{{i.description}}</h4>
-            <h5>Severity Level:{{ i.severity_level}}</h5>
-            <br><br>
+            <h5 class="mr-3">Severity Level: {{ i.severity_level }}</h5>
             {% endfor %}
-
         </div>
     </div>
 </section>
-
 
 {% endblock %}
