@@ -10,88 +10,72 @@ from .decorators import *
 from django.views.generic import FormView,CreateView
 
 # Create your views here.
-"""
-@unauthenticated_user
-def registerPage(request):
-    form=UserForm()
-    if request.method == "POST":
-        form=UserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            user=form.cleaned_data.get('username')
-            messages.success(request,'Acount is created for '+user)
-            return redirect('/login/') 
-    context={'form':form}
-    return render(request,'register.html',context)
-
-@unauthenticated_user
-def loginPage(request):
-    context={}
-    if request.method == "POST":
-        username=request.POST.get('username')#bcoz html ma form ma name=username
-        password=request.POST.get('password')
-        user=authenticate(request,username=username,password=password)
-
-        if user:
-            login(request, user)
-            return redirect('/')
-        else:
-            messages.info(request, 'Username or password is incorrect')
-            return render(request,'login.html',context)
-    return render(request,'login.html')
-
- """
 @unauthenticated_user
 def registerPage(request):
     return render(request,'register.html')
 @unauthenticated_user
 def signup_org(request):
-    registered=False
-    if request.method=='POST':
-        org=Org_Form(request.POST)
-        org_add=Org_AddForm(request.POST)
-        if org.is_valid() and org_add.is_valid():
+    registered = False
+    if request.method == 'POST':
+        form = CombinedOrgForm(request.POST)
+        if form.is_valid():
+            # Create and save the User
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password']
+            )
+            user.save()
+            
+            # Create and save the Organization
+            organization = Organization.objects.create(
+                org_name=user,
+                domain=form.cleaned_data['domain'],
+                location=form.cleaned_data['location'],
+                level=form.cleaned_data['level']
+            )
+            organization.save()
 
-            temp_org=org.save()
-            temp_org.set_password(temp_org.password)
-            temp_org.save()
-
-            temp_add=org_add.save(commit=False)
-            temp_add.org_name=temp_org
-            temp_add.save()
-
-            registered=True
+            registered = True
             return redirect('/login/')
     else:
-        org=Org_Form()
-        org_add=Org_AddForm()
+        form = CombinedOrgForm()
 
-    context={'org':org , 'org_add':org_add,'registered':registered}
-    return render(request,'signup_org.html',context) 
+    context = {'form': form, 'registered': registered}
+    return render(request, 'signup_org.html', context)
+
 @unauthenticated_user
 def signup_vol(request):
-    registered=False
-    if request.method=='POST':
-        vol=Vol_Form(request.POST)
-        vol_add=Vol_AddForm(request.POST)
-        if vol.is_valid() and vol_add.is_valid():
+    registered = False
+    if request.method == 'POST':
+        form = CombinedVolForm(request.POST)
+        if form.is_valid():
+            # Create and save the User
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password']
+            )
+            user.save()
+            
+            # Create and save the Volunteer
+            volunteer = Volunteer.objects.create(
+                vol_name=user,
+                age=form.cleaned_data['age'],
+                gender=form.cleaned_data['gender'],
+                skills=form.cleaned_data['skills'],
+                city=form.cleaned_data['city'],
+                org_name=form.cleaned_data['org_name']
+            )
+            volunteer.save()
 
-            temp_vol=vol.save()
-            temp_vol.set_password(temp_vol.password)
-            temp_vol.save()
-
-            temp_add=vol_add.save(commit=False)
-            temp_add.vol_name=temp_vol
-            temp_add.save()
-
-            registered=True
+            registered = True
             return redirect('/login/')
     else:
-        vol=Vol_Form()
-        vol_add=Vol_AddForm()
+        form = CombinedVolForm()
 
-    context={'vol':vol , 'vol_add':vol_add,'registered':registered}
-    return render(request,'signup_vol.html',context) 
+    context = {'form': form, 'registered': registered}
+    return render(request, 'signup_vol.html', context)
 
 @unauthenticated_user
 def userLogin(request):
@@ -179,10 +163,13 @@ def createReport(request):
 
 @login_required(login_url='login')
 def accept_report(request, report_id):
+    user = request.user
     report = Report.objects.get(id=report_id)
+    vol=Volunteer.objects.get(vol_name=user)
     # Check if the current user is the volunteer and the report is in 'reported' status
     if request.user.volunteer and report.status == 'reported':
         report.status = 'in_progress'
+        report.volunteer = vol
         report.save()
         messages.success(request, 'Report accepted and set to In Progress.')
     else:
@@ -193,7 +180,9 @@ def accept_report(request, report_id):
 @login_required(login_url='login')
 def mark_solve(request,report_id):
     report=Report.objects.get(id=report_id)
-    if request.user.volunteer and report.status == 'in_progress':
+    volunteer = report.volunteer
+    user = request.user
+    if volunteer and request.user == volunteer.vol_name and report.status == 'in_progress':
         report.status = 'solved'
         report.save()
         messages.success(request, 'Report accepted and set to In Progress.')
@@ -208,6 +197,15 @@ def resource(request):
     all_rec=Resources.objects.all()
     context={'resource' : all_rec}
     return render(request,'resource.html',context)
+
+@login_required(login_url='login')
+def volunteers(request):
+    user = request.user
+    profile_info = Volunteer.objects.get(vol_name=user)
+    org=profile_info.org_name
+    vol=Volunteer.objects.filter(org_name=org).exclude(vol_name=user)
+    contex={ 'vol':vol, 'org':org }
+    return render(request,'associated_volunteers.html',contex)
 
 def add_resource(request):
     form=Add_Resource()
@@ -235,149 +233,44 @@ def profile(request):
 
     context = {'user_type': user_type, 'profile_info': profile_info}
     return render(request, 'profile.html', context)
+from django.contrib.auth.forms import UserChangeForm
 
-def edit_profile(request):
-    context={}
+@login_required(login_url='login')
+def edit_profile_org(request):
     user = request.user
+    org =Organization.objects.get(org_name=user)
 
-    if hasattr(user, 'organization'):
-        user_type = 'organization'
-        profile_info = Organization.objects.get(org_name=user)
+    if request.method == 'POST':
+        user_form = UpdateUserForm(request.POST, instance=user)
+        org_form = UpdateOrgForm(request.POST, instance=org)
+        if user_form.is_valid() and org_form.is_valid():
+            user_form.save()
+            org_form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
     else:
-        user_type = 'volunteer'
-        profile_info = Volunteer.objects.get(vol_name=user)
+        user_form = UpdateUserForm(instance=user)
+        org_form = UpdateOrgForm(instance=org)
 
-    if user_type=='organization':
-        temp_org=Org_Form(instance=user)
-        temp_org_add=Org_AddForm(instance=user.organization)
-        if request.method == 'POST':
-            temp_org=Org_Form(request.POST,instance=user)
-            temp_org_add=Org_AddForm(request.POST,instance=user.organization)
-            if temp_org.is_valid() and temp_org_add.is_valid():
-                temp_org.save()
-                temp_org_add.save()
-                messages.success(request, 'Profile updated successfully!')
-                return redirect('/profile/')
-        context={'user_type': user_type,'org':temp_org , 'org_add':temp_org_add,'profile_info': profile_info}
+    context = {'user_form': user_form, 'org_form': org_form}
+    return render(request, 'edit_profile_org.html', context)
 
+@login_required(login_url='login')
+def edit_profile_vol(request):
+    user = request.user
+    volunteer =Volunteer.objects.get(vol_name=user)
+
+    if request.method == 'POST':
+        user_form = UpdateUserForm(request.POST, instance=user)
+        vol_form = UpdateVolForm(request.POST, instance=volunteer)
+        if user_form.is_valid() and vol_form.is_valid():
+            user_form.save()
+            vol_form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
     else:
-        temp_vol=Vol_Form(instance=user)
-        temp_vol_add=Vol_AddForm(instance=user.volunteer)
-        if request.method == 'POST':
-            temp_vol=Vol_Form(request.POST,instance=user)
-            temp_vol_add=Vol_AddForm(request.POST,instance=user.volunteer)
-            if temp_vol.is_valid() and temp_vol_add.is_valid():
-                temp_vol.save()
-                temp_vol_add.save()
-                messages.success(request, 'Profile updated successfully!')
-                return redirect('/profile/')
-        context={'user_type': user_type,'vol':temp_vol , 'vol_add':temp_vol_add,'profile_info': profile_info}
+        user_form = UpdateUserForm(instance=user)
+        vol_form = UpdateVolForm(instance=volunteer)
 
-    return render(request, 'edit_profile.html', context)
-
-    
-
-
-"""def signup_vol(request):
-    form=User_vol()
-    if request.method == "POST":
-        form=User_vol(request.POST)
-        if form.is_valid():
-            #email = form.cleaned_data['email']
-            #org_name = form.cleaned_data['org_name']
-            #password = form.cleaned_data['password1']
-            
-            # Use the create_organization method
-            #user = CustomUser.objects.create_volunteer(email=email, org_name=org_name, password=password)
-            user_name = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            organization= form.cleaned_data.get('organization')
-            age= form.cleaned_data.get('age')
-            gender= form.cleaned_data.get('gender')
-            city= form.cleaned_data.get('city')
-            skills= form.cleaned_data.get('skills')
-            V=Volunteer(vol_name=user_name,email=email,org_name=organization,age=age,gender=gender,city=city,skills=skills)
-            V.save()
-            form.save()
-            messages.success(request,'Acount is created for ')
-            return redirect('/login/') 
-    context={}
-    return render(request,'signup_vol.html',context)
-
-
-def signup_org(request):
-
-    form=User_org()
-    if request.method == "POST":
-        form=User_org(request.POST)
-        if form.is_valid():
-            #email = form.cleaned_data.get('email')
-            #org_name = form.cleaned_data.get('org_name')
-            #password = form.cleaned_data.get('password1')
-            # Use the create_organization method
-            #user = CustomUser.objects.create_user(email=email, username=org_name, password=password, is_organization=True)
-            form.save()
-            user_name = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            domain = form.cleaned_data.get('domain')
-            location = form.cleaned_data.get('location')
-            level = form.cleaned_data.get('level')
-
-            organization_instance=Organization(
-                org_name=user_name,
-                email=email,
-                domain=domain,
-                location=location,
-                level=level
-                )
-            organization_instance.save()
-            messages.success(request,'Acount is created for ')
-            return redirect('/login/') 
-    context={}
-    return render(request,'signup_org.html',context)
-
-class reg_org(CreateView):
-    form_class= User_org()
-    template_name=signup_org.html
-    success_url='/login/'
-    def form_valid(self, form):
-        messages.success(self.request, 'Account is created for {}'.format(form.cleaned_data['org_name']))
-        form.save()
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        # Handle the case where the form is invalid
-        return self.render_to_response(self.get_context_data(form=form)) 
-
-
-def login_user(request):
-    if request.method == "POST":
-        username=request.POST.get('username')#bcoz html ma form ma name=username
-        password=request.POST.get('password')
-        user=authenticate(request,username=username,password=password)
-
-        if user:
-            if user.is_staff == True:
-                login(request,user)
-                return redirect("/dashboard_vol/")
-            else:
-                login(request,user)
-                return redirect("/dashboard_org/")
-
-    return render(request,'login.html')
-
-def dashboard_vol(request):
-    report=Report.objects.all()
-    report=report.filter(status='reported')
-    context={'report':report}
-
-    return render(request,'dashboard_vol.html',context)
-
-def dashboard_org(request):
-    report=Report.objects.all()
-    report=report.filter(status='reported')
-    context={'report':report}
-
-    return render(request,'dashboard_org.html',context)
-
-    """
+    context = {'user_form': user_form, 'vol_form': vol_form}
+    return render(request, 'edit_profile_vol.html', context)

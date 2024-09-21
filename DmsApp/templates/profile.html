@@ -82,13 +82,20 @@
         <div class ="user-attribute">Gender: {{ profile_info.gender }}  </div>
         <div class="user-attribute">Skills: {{ profile_info.skills }}</div>
         <div class="user-attribute">City: {{ profile_info.city }}</div>
-        <div class="user-attribute">Organization: {{ profile_info.org_name }}</div>
+        <div class="user-attribute">Organization: {{ profile_info.org_xname }}</div>
         {% else %}
         <p>Unknown user type.</p>
         {% endif %}
         <a href="" style="display: inline-block; padding: 7px 15px; background-color: #007bff; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px;">Change Password</a>
-        <a href="{% url 'edit_profile' %}" style="display: inline-block; padding: 7px 15px; background-color: #007bff; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px;">Edit Profile</a>
+        
+        {% if user_type == 'organization' %}
+        <a href="{% url 'edit_profile_org' %}" style="display: inline-block; padding: 7px 15px; background-color: #007bff; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px;">Edit Profile</a>
+        {% elif user_type == 'volunteer' %}
+        <a href="{% url 'edit_profile_vol' %}" style="display: inline-block; padding: 7px 15px; background-color: #007bff; color: #fff; text-decoration: none; font-weight: bold; border-radius: 5px;">Edit Profile</a>
+        {% else %}
+        <p>Unknown user type.</p>
 
+        {% endif %}
     </div>
 </div>
 

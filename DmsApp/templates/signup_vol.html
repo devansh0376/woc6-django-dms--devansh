@@ -1,179 +1,119 @@
 {% extends 'main.html' %}
+
 {% block content %}
-
-<div class="jumbotron">
-  {% if registered %}
-       <h1>Thanks for registering, Please Log in!</h1>
-      
-   {% else %}
-       <h1>Registration for Organization : </h1>
-       <form action="" method="POST">
-        {% csrf_token %}
-        <br>
-        <div class="form-outline mb-3">
-            <input type="" id="username" placeholder="Username" name="username"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);" />
-        </div>
-        <div class="form-outline mb-3">
-            <input type="email" id="email" placeholder="Email id" name="email"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);" />
-        </div>
-        <div class="form-outline mb-3">
-            <input type="password" id="password1" placeholder="Password" name="password"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);" />
-        </div>
-        <div class="form-outline mb-3">
-          {{ vol_add.org_name}}
-        </select>
-        <div class="form-outline mb-3">
-            <input type="number" id="domain" placeholder="Enter Age" name="age"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);" />
-        </div>
-        <div class="form-outline mb-3">
-          {{ vol_add.gender}}
-        </select>
-        <div class="form-outline mb-3">
-          <input type="text" id="location" placeholder="Enter City" name="city"
-              class="form-control form-control-lg" required style="color:rgb(7, 172, 7);" />
-      </div>
-
-      <div class="form-outline mb-3">
-          {{ vol_add.skills}}
-        </select>
-
-        <div class="d-flex justify-content-around align-items-center" style="color: RED;">
-          <p id="messages">{{form.errors}}</p>
-      </div>
-
-      <div class="d-flex justify-content-around align-items-center mb-3" style="color: rgb(27, 230, 27);">
-      Already a user?
-      <a href="{% url 'login' %}" style="color: rgb(27, 230, 27);">Sign In</a>
-      </div>
-      <button type="submit" class="btn btn-success btn-lg btn-primary mb-3"style="width:100%;">Register</button>
-    </form>
-   {% endif %}
-</div>
-
-{% endblock %}
-
-<!--
 <style>
-    body{
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      backdrop-filter: blur(3px);
+    body {
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        backdrop-filter: blur(3px);
     }
+
     .divider:after,
     .divider:before {
-      content: "";
-      flex: 1;
-      height: 1px;
+        content: "";
+        flex: 1;
+        height: 1px;
     }
-  </style>
-  
-  <section class="vh-100">
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-custom {
+        color: rgb(7, 172, 7);
+        background-color: white;
+        border: 2px solid rgb(7, 172, 7);
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px 0;
+    }
+
+    .btn-custom:hover {
+        background-color: rgb(7, 172, 7);
+        color: white;
+    }
+
+    .form-outline input,
+    .form-outline select {
+        color: rgb(7, 172, 7);
+    }
+</style>
+
+<section class="vh-100">
     <div class="container py-1 h-100">
-      <div class="row d-flex align-items-center justify-content-center h-100 w-auto border-opacity-10">
-        <div class="col-md-5 col-lg-5 col-xl-5 offset-xl-0">
-          <div>
-            <h1 style="font-family: 'Josefin Slab', serif;font-size:60px;font-weight: 150;color:green;">
-              <center>Register</center>
-            </h1>
-          </div>
-          <div class="reciver-button text-center mt-4 d-flex">
-            <a href={% url 'signup_vol' %}>
-               <div class="btn button-reciver color-white text-center mr-1 p-2" > 
-                  <b>Volunteer</b>
-               </div>
-            </a>
-            <a href={% url 'signup_org' %}>
-               <div class="btn button-you color-white text-center ml-2 p-2 ">
-                  <b>Organization</b>
-               </div>
-            </a>
-            <div class="button-or background-silvar pl-2 pr-2 color-white">
-               <b>or</b>
+        <div class="row d-flex align-items-center justify-content-center h-100 w-auto border-opacity-10">
+            <div class="col-md-8 col-lg-6 col-xl-5 offset-xl-0">
+                <div class="form-container">
+                    {% if registered %}
+                        <h1 class="text-center" style="font-family: 'Josefin Slab', serif; font-size: 36px; color: green;">
+                            Thanks for registering, Please Log in!
+                        </h1>
+                    {% else %}
+                        <h1 class="text-center" style="font-family: 'Josefin Slab', serif; font-size: 36px; color: green;">
+                            Volunteer Registration
+                        </h1>
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="form-outline mb-3">
+                                <input type="text" id="username" placeholder="Username" name="username" class="form-control form-control-lg" required />
+                            </div>
+                            <div class="form-outline mb-3">
+                                <input type="email" id="email" placeholder="Email id" name="email" class="form-control form-control-lg" required />
+                            </div>
+                            <div class="form-outline mb-3">
+                                <input type="password" id="password" placeholder="Password" name="password" class="form-control form-control-lg" required />
+                            </div>
+                            <div class="form-outline mb-3">
+                                <input type="number" id="age" placeholder="Age" name="age" class="form-control form-control-lg" required />
+                            </div>
+                            <div class="form-outline mb-3">
+                                <select name="gender" class="form-control form-control-lg" required>
+                                    <option value="">Select Gender</option>
+                                    {% for key, value in form.fields.gender.choices %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-outline mb-3">
+                                <select name="skills" class="form-control form-control-lg" required>
+                                    <option value="">Select Skills</option>
+                                    {% for key, value in form.fields.skills.choices %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-outline mb-3">
+                                <input type="text" id="city" placeholder="City" name="city" class="form-control form-control-lg" required />
+                            </div>
+                            <div class="form-outline mb-3">
+                                <select name="org_name" class="form-control form-control-lg" required>
+                                    <option value="">Select Organization</option>
+                                    {% for org in form.fields.org_name.queryset %}
+                                        <option value="{{ org.id }}">{{ org.org_name.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-around align-items-center mb-3" style="color: red;">
+                                <p id="messages">{{ form.errors }}</p>
+                            </div>
+                            <div class="d-flex justify-content-around align-items-center mb-3">
+                                Already a user? <a href="{% url 'login' %}" class="btn-custom">Sign In</a>
+                            </div>
+                            <button type="submit" class="btn btn-custom btn-lg" style="width: 100%;">Register</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
-         </div>
-
-         <div class="mt-3 mb-2 text-center">
-            <h4 style=" font-waite: 400;">Customer Register</h4>
-         </div>
-
-          <form method="POST" action="">
-            {% csrf_token %}
-            <br>
-            
-            <div class="form-outline mb-3">
-              <input type="" id="username" placeholder="Username" name="username"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-
-            <div class="form-outline mb-3">
-              <input type="email" id="email" placeholder="Email id" name="email" class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-
-            <div class="form-outline mb-3">
-              <input type="password" id="password1" placeholder="Password" name="password1"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-
-            <div class="form-outline mb-3">
-              <input type="password" id="password2" placeholder="Confirm Password" name="password2"
-                class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-
-            <div class="form-outline mb-3">
-                <input type="password" id="password2" placeholder="Organization Name" name="organization"
-                  class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-            
-            <div class="form-outline mb-3">
-                <input type="number" id="password2" placeholder="Enter Your Age" name="age"
-                  class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-
-            <div class="form-outline mb-3">
-                <select class="form-select" name="gender" required style="color:rgb(7, 172, 7);" >
-                    <option selected>Open this select menu</option>
-                    <option value="1" >Male</option>
-                    <option value="2">Female</option>
-                </select>
-            </div>
-
-            <div class="form-outline mb-3">
-                <input type="text" id="password2" placeholder="Enter Your City" name="city"
-                  class="form-control form-control-lg" required style="color:rgb(7, 172, 7);"/>
-            </div>
-
-            <div class="form-outline mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="skills">
-                    <label class="form-check-label" for="flexCheckDefault"> Time Management</label>
-                    <label class="form-check-label" for="flexCheckDefault">Fire Safety</label>
-                    <label class="form-check-label" for="flexCheckDefault">Safety</label>
-                    <label class="form-check-label" for="flexCheckDefault">Physical Fitness</label>
-                  </div>
-            </div>
-
-            <div class="d-flex justify-content-around align-items-center" style="color: RED;">
-              <p id="messages">{{form.errors}}</p>
-            </div>
-
-            <div class="d-flex justify-content-around align-items-center mb-3" style="color: rgb(27, 230, 27);">
-
-              Already a user?
-
-              <a href="{% url 'login' %}" style="color: rgb(27, 230, 27);">Sign In</a>
-            </div>
-            
-            <button type="submit" class="btn btn-success btn-lg btn-primary mb-3" style="width:100%;">Register</button>
- 
-          </form>
-          
         </div>
-      </div>
     </div>
-  </section>
--->
+</section>
+{% endblock %}

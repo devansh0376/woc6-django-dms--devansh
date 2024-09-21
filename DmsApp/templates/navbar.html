@@ -114,6 +114,13 @@
             Resource
           </a>
         </li>
+          {% if user.volunteer %}
+          <li class="nav-item active">
+            <a href="{% url 'volunteers' %}" class="nav-link active">
+              volunteers
+            </a>
+          </li>
+          {%endif%} 
         {%endif%} 
       </ul>
 

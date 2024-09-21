@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+{% block content %}
+
+
+<h1><center><b>Volunteers in {{ org }} NGO</b></center></h1>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Volunteers Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+      {% for i in vol %}
+      <tr>
+        <th scope="row">{{i.id}}</th>
+        <td>{{i.vol_name}}</td>
+      </tr>
+      {% endfor %}
+      </tr>
+  </tbody>
+  </table>
+
+{% endblock %}

@@ -26,7 +26,11 @@
     h5 {
         color: #6c757d;
     }
-    
+    .custom-width {
+        width: 80px; /* Adjust the width as needed */
+        height:30px;
+        text-align: center; /* Center text inside the button */
+    }
 </style>
 
 <section>
@@ -53,7 +57,7 @@
                 <h5 class="mr-3">Severity Level: {{ i.severity_level }}</h5>
             </div>
             {%if user.volunteer%}
-            <a class="button" href="{% url 'mark_solve' i.id %}" role="button">Mark as Solved</a>
+            <a href="{% url 'mark_solve' i.id %}" class="btn btn-primary btn-sm custom-width" role="button">Mark as Solved</a>
             {% endif %}
             <br><br>
             {% endfor %}

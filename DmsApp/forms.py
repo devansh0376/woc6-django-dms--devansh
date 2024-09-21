@@ -27,79 +27,53 @@ class Add_Resource(ModelForm):
     class Meta:
         model=Resources
         fields='__all__'
-        #exclude=['org_name']
 
 
-class Org_Form(ModelForm):
-    #password = forms.CharField(widget=PasswordInput()) 
-    class Meta():
-        model=User
-        fields=['username','email','password']
-        
-class Org_AddForm(forms.ModelForm):
-    level = forms.ChoiceField(choices=LEVEL)
-    class Meta():
-        model=Organization
-        fields=['domain','location','level']
+class CombinedOrgForm(forms.Form):
+    username = forms.CharField(max_length=150, required=True)
+    email = forms.EmailField(required=True)
+    password = forms.CharField(widget=forms.PasswordInput(), required=True)
+    domain = forms.CharField(max_length=100, required=True)
+    location = forms.CharField(max_length=100, required=True)
+    level = forms.ChoiceField(choices=Organization.LEVEL, required=True)
 
-class Vol_Form(ModelForm):
-    password=forms.CharField(widget=PasswordInput()) 
-    class Meta():
-        model=User
-        fields=['username','email','password']
+class CombinedVolForm(forms.Form):
+    username = forms.CharField(max_length=150, required=True)
+    email = forms.EmailField(required=True)
+    password = forms.CharField(widget=forms.PasswordInput(), required=True)
+    age = forms.IntegerField(required=True)
+    gender = forms.ChoiceField(choices=Volunteer.GENDER, required=True)
+    skills = forms.ChoiceField(choices=Volunteer.SKILLS, required=True)
+    city = forms.CharField(max_length=30, required=True)
+    org_name = forms.ModelChoiceField(queryset=Organization.objects.all(), empty_label="Select Organization", required=True)
 
-class Vol_AddForm(forms.ModelForm):
-    org_name = forms.ModelChoiceField(queryset=Organization.objects.all(), empty_label="Select Organization")
-    skills = forms.ChoiceField(choices=SKILLS)  # Use forms.ChoiceField instead of CharField
-    gender = forms.ChoiceField(choices=GENDER)  # Use forms.ChoiceField instead of CharField
-    class Meta():
-        model=Volunteer
-        fields=['org_name','age','gender','city','skills']
-
-"""
-
-class UserForm(UserCreationForm):
+class UpdateUserForm(forms.ModelForm):
     class Meta:
-        model=User
-        fields = ['username', 'email', 'password1', 'password2']
+        model = User
+        fields = ['username', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
 
-class CustomUserCreationForm(UserCreationForm):
-
-    class Meta(UserCreationForm):
-        model = CustomUser
-        fields = ('email',)
-
-
-class CustomUserChangeForm(UserChangeForm):
-
+class UpdateOrgForm(forms.ModelForm):
     class Meta:
-        model = CustomUser
-        fields = ('email',)
+        model = Organization
+        fields = ['domain', 'location', 'level']
+        widgets = {
+            'domain': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'level': forms.Select(attrs={'class': 'form-control'}),
+        }
 
-
- class User_vol(UserCreationForm):
-    #username=models.CharField( max_length = 50, unique = True)
-    #email = models.EmailField(unique = True)
-    #password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    #password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    org_name=MyModelChoiceField(queryset=Organization.objects.all())
-    age=forms.IntegerField()
-    gender=forms.ChoiceField(choices=GENDER)
-    city=forms.CharField(max_length=30,required=False)
-    skills=forms.ChoiceField(choices=SKILLS)
+class UpdateVolForm(forms.ModelForm):
     class Meta:
-        model=Volunteer
-        fields = ['username', 'email', 'password1', 'password2','org_name','age','gender','city','skills']
-
-class User_org(UserCreationForm):
-    #username=models.CharField(max_length = 50, unique = True)
-    email = models.EmailField(unique = True)
-    #password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    #password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    #domain=forms.CharField(max_length=100)
-    #location=forms.CharField(max_length=100)
-    #level=forms.ChoiceField(choices=LEVEL)
-    class meta:
-        model=Organization
-        fields=['username','email','password1','password2','domain','location','level']
-"""
+        model = Volunteer
+        fields = ['age', 'gender', 'skills', 'city', 'org_name']
+        widgets = {
+            'age': forms.NumberInput(attrs={'class': 'form-control'}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'skills': forms.Select(attrs={'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),
+            'org_name': forms.Select(attrs={'class': 'form-control'}),
+        }
