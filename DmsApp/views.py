@@ -13,6 +13,9 @@ from django.views.generic import FormView,CreateView
 @unauthenticated_user
 def registerPage(request):
     return render(request,'register.html')
+
+
+#in this i created user in funtion 
 @unauthenticated_user
 def signup_org(request):
     registered = False
@@ -20,6 +23,7 @@ def signup_org(request):
         form = CombinedOrgForm(request.POST)
         if form.is_valid():
             # Create and save the User
+            #so this will store in user model
             user = User.objects.create_user(
                 username=form.cleaned_data['username'],
                 email=form.cleaned_data['email'],
@@ -28,6 +32,7 @@ def signup_org(request):
             user.save()
             
             # Create and save the Organization
+            #and this will stoer in orfanization model
             organization = Organization.objects.create(
                 org_name=user,
                 domain=form.cleaned_data['domain'],
